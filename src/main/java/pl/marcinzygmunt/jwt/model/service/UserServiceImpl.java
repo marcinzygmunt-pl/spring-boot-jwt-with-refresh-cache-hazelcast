@@ -11,6 +11,8 @@ import pl.marcinzygmunt.jwt.model.controller.dto.SignupRequest;
 import pl.marcinzygmunt.jwt.model.controller.dto.UserInfo;
 import pl.marcinzygmunt.jwt.model.controller.mapper.UserAccountMapper;
 import pl.marcinzygmunt.jwt.model.entity.UserAccountEntity;
+import pl.marcinzygmunt.jwt.model.exception.UserExistException;
+import pl.marcinzygmunt.jwt.model.exception.UserNotFoundException;
 import pl.marcinzygmunt.jwt.model.repsitory.UserAccountRepository;
 
 import java.util.stream.Collectors;
@@ -26,7 +28,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void createUser(SignupRequest signupRequest) {
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new RuntimeException("");
+            throw new UserExistException();
         }
         userRepository.save(userAccountMapper.toUserAccountEntity(signupRequest));
     }
@@ -44,7 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void removeUser(Long id) {
-        UserAccountEntity userAccountEntity = userRepository.findById(id).orElseThrow(()-> new RuntimeException(""));
+        UserAccountEntity userAccountEntity = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userRepository.delete(userAccountEntity);
     }
 }
