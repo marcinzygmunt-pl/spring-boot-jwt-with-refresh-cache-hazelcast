@@ -16,13 +16,16 @@ spring:
       ddl-auto: update
 pl.marcinzygmunt:
   jwt:
-    cookieName: jwt
-    cookiePath: /api
+    jwtCookieName: jwt
+    jwtCookiePath: /api
+    refreshCookieName: refresh-token
+    refreshCookiePath: /api/auth/refreshtoken
     cookieValidSec: 24 * 60 * 60
     cookieHttp: true
     cookieSecure: true
     secret: B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF
     expirationMin: 30
+    refreshExpirationMin: 30
   default-user:
     create: true
     overrideUser: true

@@ -8,10 +8,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class JwtConfigurationProperties {
-    private String cookieName;
-    private String cookiePath;
+    private String jwtCookieName;
+    private String jwtCookiePath;
+    private String refreshCookieName;
+    private String refreshCookiePath;
     private boolean cookieSecure;
     private boolean cookieHttp;
     private String secret;
     private int expirationMin;
+    private int refreshExpirationMin;
 }

@@ -9,12 +9,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinzygmunt.jwt.util.JwtUtils;
 import pl.marcinzygmunt.jwt.model.controller.dto.LoginRequest;
 import pl.marcinzygmunt.jwt.model.controller.dto.SignupRequest;
 import pl.marcinzygmunt.jwt.model.controller.dto.UserInfo;
+import pl.marcinzygmunt.jwt.model.entity.RefreshTokenEntity;
+import pl.marcinzygmunt.jwt.model.service.RefreshTokenService;
 import pl.marcinzygmunt.jwt.model.service.UserService;
 import pl.marcinzygmunt.jwt.security.UserDetailsImpl;
+import pl.marcinzygmunt.jwt.util.JwtUtils;
 
 import javax.validation.Valid;
 
@@ -30,13 +32,20 @@ public class AuthController {
 
     private final JwtUtils jwtUtils;
 
+    private final RefreshTokenService refreshTokenService;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+        RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+        ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
                 .body("Login successful!");
     }
 
@@ -48,8 +57,16 @@ public class AuthController {
 
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser() {
-        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+        Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!principle.equals("anonymousUser")) {
+            refreshTokenService.deleteByUserEmail(((UserDetailsImpl) principle).getUsername());
+        }
+
+        ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
+        ResponseCookie refreshCookie = jwtUtils.getCleanJwtRefreshCookie();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body("You've been signed out!");
     }
 

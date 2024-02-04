@@ -7,6 +7,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 import pl.marcinzygmunt.jwt.JwtConfigurationProperties;
+import pl.marcinzygmunt.jwt.model.entity.UserAccountEntity;
 import pl.marcinzygmunt.jwt.security.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
 import io.jsonwebtoken.*;
@@ -25,30 +26,65 @@ public class JwtUtils {
    private final JwtConfigurationProperties jwtConfigurationProperties;
 
     public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtConfigurationProperties.getCookieName());
+        return getCookieValueByName(request,jwtConfigurationProperties.getJwtCookieName());
+    }
+    public String getJwtRefreshFromCookies(HttpServletRequest request) {
+        return getCookieValueByName(request, jwtConfigurationProperties.getRefreshCookieName());
+    }
+
+    private String getCookieValueByName(HttpServletRequest request, String name) {
+        Cookie cookie = WebUtils.getCookie(request, name);
         if (cookie != null) {
             return cookie.getValue();
         } else {
             return null;
         }
     }
-
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-        return ResponseCookie.from(jwtConfigurationProperties.getCookieName(), jwt)
-                .path(jwtConfigurationProperties.getCookiePath())
-                .maxAge(TimeUnit.MINUTES.toSeconds(jwtConfigurationProperties.getExpirationMin()))
+        return generateCookie(jwtConfigurationProperties.getJwtCookieName(),
+                jwt,
+                jwtConfigurationProperties.getJwtCookiePath(),
+                jwtConfigurationProperties.getExpirationMin());
+    }
+
+    public ResponseCookie generateJwtCookie(UserAccountEntity userAccountEntity) {
+        String jwt = generateTokenFromUsername(userAccountEntity.getEmail());
+        return generateCookie(jwtConfigurationProperties.getJwtCookieName(),
+                jwt,
+                jwtConfigurationProperties.getJwtCookiePath(),
+                jwtConfigurationProperties.getExpirationMin());
+    }
+
+
+    public ResponseCookie generateRefreshJwtCookie(String refreshToken) {
+        return generateCookie(jwtConfigurationProperties.getRefreshCookieName(),
+                refreshToken,
+                jwtConfigurationProperties.getRefreshCookiePath(),
+                jwtConfigurationProperties.getRefreshExpirationMin());
+    }
+
+    private ResponseCookie generateCookie(String name, String value, String path, int expirationMin) {
+        return ResponseCookie.from(name, value)
+                .path(path)
+                .maxAge(TimeUnit.MINUTES.toSeconds(expirationMin))
                 .httpOnly(jwtConfigurationProperties.isCookieHttp())
                 .secure(jwtConfigurationProperties.isCookieSecure())
                 .build();
     }
 
+
+
     public ResponseCookie getCleanJwtCookie() {
-        return ResponseCookie.from(jwtConfigurationProperties.getCookieName(), null).path("/api").build();
+        return ResponseCookie.from(jwtConfigurationProperties.getJwtCookieName(), null).path(jwtConfigurationProperties.getJwtCookiePath()).build();
     }
 
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public ResponseCookie getCleanJwtRefreshCookie() {
+        return ResponseCookie.from(jwtConfigurationProperties.getRefreshCookieName(), null).path(jwtConfigurationProperties.getRefreshCookiePath()).build();
     }
 
     private Key key() {
