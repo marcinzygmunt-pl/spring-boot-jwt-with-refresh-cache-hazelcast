@@ -1,0 +1,31 @@
+server:
+  port: ${APPLICATION_PORT:8088}
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+spring:
+  datasource:
+    url:  ${DATABASE_URL:jdbc:postgresql://localhost:5432/jwt}
+    username: ${BE_DB_USER:jwt}
+    password: ${BE_DB_PASS:jwt}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+pl.marcinzygmunt:
+  jwt:
+    cookieName: jwt
+    cookiePath: /api
+    cookieValidSec: 24 * 60 * 60
+    cookieHttp: true
+    cookieSecure: true
+    secret: B374A26A71490437AA024E4FADD5B497FDFF1A8EA6FF12F6FB65AF2720B59CCF
+    expirationMin: 30
+  default-user:
+    create: true
+    overrideUser: true
+    email: admin@marcinzygmunt.pl
+    password: password
+
