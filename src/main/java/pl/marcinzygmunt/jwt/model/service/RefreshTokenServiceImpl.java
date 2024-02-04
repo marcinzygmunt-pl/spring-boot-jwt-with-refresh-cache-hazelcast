@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.marcinzygmunt.jwt.JwtConfigurationProperties;
 import pl.marcinzygmunt.jwt.model.entity.RefreshTokenEntity;
+import pl.marcinzygmunt.jwt.model.exception.RefreshExpiredException;
+import pl.marcinzygmunt.jwt.model.exception.UserNotFoundException;
 import pl.marcinzygmunt.jwt.model.repsitory.RefreshTokenRepository;
 import pl.marcinzygmunt.jwt.model.repsitory.UserAccountRepository;
 
@@ -29,7 +31,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshTokenEntity createRefreshToken(String email) {
         RefreshTokenEntity refreshToken = new RefreshTokenEntity();
-        refreshToken.setUserAccount(userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found")));
+        refreshToken.setUserAccount(userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new));
         refreshToken.setValidDate(LocalDateTime.now(Clock.systemDefaultZone()).plusMinutes(jwtConfigurationProperties.getRefreshExpirationMin()));
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken = refreshTokenRepository.save(refreshToken);
@@ -41,7 +43,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshTokenEntity verifyExpiration(RefreshTokenEntity refreshToken) {
         if (refreshToken.getValidDate().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(refreshToken);
-            throw new RuntimeException(String.format("%s Refresh token was expired. Please make a new signin request",refreshToken.getToken()));
+            throw new RefreshExpiredException();
         }
         return refreshToken;
     }
@@ -49,6 +51,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public int deleteByUserEmail(String email) {
-            return refreshTokenRepository.deleteByUserAccount(userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found")));
+            return refreshTokenRepository.deleteByUserAccount(userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new));
       }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.marcinzygmunt.jwt.model.entity.RefreshTokenEntity;
+import pl.marcinzygmunt.jwt.model.exception.RefreshTokenNotFoundException;
 import pl.marcinzygmunt.jwt.model.service.RefreshTokenService;
 import pl.marcinzygmunt.jwt.util.JwtUtils;
 
@@ -37,7 +38,7 @@ public class RefreshTokenController {
                                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                                 .body("Token is refreshed successfully!");
                     })
-                    .orElseThrow(() -> new RuntimeException(String.format("%s Refresh token is not in database!",refreshToken)));
+                    .orElseThrow(RefreshTokenNotFoundException::new);
         }
 
         return ResponseEntity.badRequest().body("Refresh Token is empty!");
