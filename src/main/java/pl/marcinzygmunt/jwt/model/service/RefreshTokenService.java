@@ -1,12 +1,13 @@
 package pl.marcinzygmunt.jwt.model.service;
 
-import pl.marcinzygmunt.jwt.model.entity.RefreshTokenEntity;
+import jakarta.transaction.Transactional;
+import pl.marcinzygmunt.jwt.model.entity.RefreshToken;
 
 import java.util.Optional;
 
 public interface RefreshTokenService {
-    Optional<RefreshTokenEntity> findByToken(String token);
-    RefreshTokenEntity createRefreshToken(String username);
-    RefreshTokenEntity verifyExpiration(RefreshTokenEntity refreshToken);
-    int deleteByUserEmail(String username);
+    RefreshToken findByToken(String token);
+    RefreshToken createRefreshToken(String username);
+    RefreshToken verifyExpiration(String token);
+    void deleteByUserEmail(String email);
 }

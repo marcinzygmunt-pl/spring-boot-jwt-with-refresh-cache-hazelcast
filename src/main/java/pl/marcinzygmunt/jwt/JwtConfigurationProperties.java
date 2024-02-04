@@ -17,4 +17,5 @@ public class JwtConfigurationProperties {
     private String secret;
     private int expirationMin;
     private int refreshExpirationMin;
+    private String refreshCache;
 }

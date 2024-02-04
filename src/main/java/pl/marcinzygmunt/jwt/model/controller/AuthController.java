@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.marcinzygmunt.jwt.model.controller.dto.LoginRequest;
 import pl.marcinzygmunt.jwt.model.controller.dto.SignupRequest;
 import pl.marcinzygmunt.jwt.model.controller.dto.UserInfo;
-import pl.marcinzygmunt.jwt.model.entity.RefreshTokenEntity;
+import pl.marcinzygmunt.jwt.model.entity.RefreshToken;
 import pl.marcinzygmunt.jwt.model.service.RefreshTokenService;
 import pl.marcinzygmunt.jwt.model.service.UserService;
 import pl.marcinzygmunt.jwt.security.UserDetailsImpl;
@@ -40,7 +40,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-        RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
         ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken());
 
         return ResponseEntity.ok()
