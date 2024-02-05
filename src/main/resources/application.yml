@@ -27,6 +27,18 @@ pl.marcinzygmunt:
     expirationMin: 30
     refreshExpirationMin: 30
     refreshCache: refreshTokens
+  hazelcast:
+    members:
+    cluster-name: jwt-hazelcast-cache
+    port: 5701
+    public-ip-address: 127.0.0.1
+    maps:
+      - name: refresh_token
+        time-to-live: 30m
+        max-idle: 15m
+      - name: sessions
+        time-to-live: 30m
+        max-idle: 30m
   default-user:
     create: true
     overrideUser: true
