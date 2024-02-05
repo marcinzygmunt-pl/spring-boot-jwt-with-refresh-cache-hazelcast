@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 import pl.marcinzygmunt.jwt.JwtConfigurationProperties;
 import pl.marcinzygmunt.jwt.model.entity.UserAccountEntity;
+import pl.marcinzygmunt.jwt.model.exception.JwtValidationException;
 import pl.marcinzygmunt.jwt.security.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
 import io.jsonwebtoken.*;
@@ -96,10 +97,8 @@ public class JwtUtils {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
             return true;
         } catch (JwtException e) {
-            log.error(e.getMessage());
+           throw new JwtValidationException(e.getMessage());
         }
-
-        return false;
     }
 
     public String generateTokenFromUsername(String username) {
