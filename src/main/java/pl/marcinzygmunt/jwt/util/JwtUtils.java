@@ -77,7 +77,9 @@ public class JwtUtils {
 
 
     public ResponseCookie getCleanJwtCookie() {
-        return ResponseCookie.from(jwtConfigurationProperties.getJwtCookieName(), null).path(jwtConfigurationProperties.getJwtCookiePath()).build();
+        return ResponseCookie.from(jwtConfigurationProperties.getJwtCookieName(), null)
+                .path(jwtConfigurationProperties.getJwtCookiePath())
+                .build();
     }
 
     public String getUserNameFromJwtToken(String token) {
@@ -85,7 +87,9 @@ public class JwtUtils {
     }
 
     public ResponseCookie getCleanJwtRefreshCookie() {
-        return ResponseCookie.from(jwtConfigurationProperties.getRefreshCookieName(), null).path(jwtConfigurationProperties.getRefreshCookiePath()).build();
+        return ResponseCookie.from(jwtConfigurationProperties.getRefreshCookieName(), null)
+                .path(jwtConfigurationProperties.getRefreshCookiePath())
+                .build();
     }
 
     private Key key() {
@@ -105,7 +109,9 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(jwtConfigurationProperties.getExpirationMin())))
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(jwtConfigurationProperties.getExpirationMin()))
+                )
                 .signWith(key())
                 .compact();
     }
