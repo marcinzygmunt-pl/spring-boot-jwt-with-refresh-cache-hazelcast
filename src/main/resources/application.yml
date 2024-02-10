@@ -1,14 +1,14 @@
 server:
-  port: ${APPLICATION_PORT:8088}
+  port: 8088 #ovveride in second instance with 8089
   servlet:
     session:
       cookie:
         same-site: lax
 spring:
   datasource:
-    url:  ${DATABASE_URL:jdbc:postgresql://localhost:5432/jwt}
-    username: ${BE_DB_USER:jwt}
-    password: ${BE_DB_PASS:jwt}
+    url:  jdbc:postgresql://localhost:5432/jwt
+    username: jwt
+    password: jwt
   flyway:
     enabled: true
   jpa:
@@ -28,9 +28,9 @@ pl.marcinzygmunt:
     refreshExpirationMin: 30
     refreshCache: refreshTokens
   hazelcast:
-    members:
+    members: 127.0.0.1:5701, 127.0.0.1:5702
     cluster-name: jwt-hazelcast-cache
-    port: 5701
+    port: 5701 #ovveride in second instance with 5702
     public-ip-address: 127.0.0.1
     maps:
       - name: refresh_token

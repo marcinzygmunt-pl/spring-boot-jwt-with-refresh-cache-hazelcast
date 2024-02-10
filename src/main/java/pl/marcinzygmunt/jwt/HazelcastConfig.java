@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
 import java.util.Properties;
 
@@ -18,17 +19,9 @@ import java.util.Properties;
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
+@EnableHazelcastHttpSession
 public class HazelcastConfig {
 
-    @Bean
-    public WebFilter webFilter(HazelcastInstance hazelcastInstance) {
-        Properties properties = new Properties();
-        properties.put("instance-name", hazelcastInstance.getName());
-        properties.put("sticky-session", "false");
-        properties.put("cookie-secure", true);
-        properties.put("cookie-http-only", true);
-        return new WebFilter(properties);
-    }
 
     @Bean
     public Config hazelcastCacheConfig(HazelcastCacheProperties hazelcastCacheProperties) {

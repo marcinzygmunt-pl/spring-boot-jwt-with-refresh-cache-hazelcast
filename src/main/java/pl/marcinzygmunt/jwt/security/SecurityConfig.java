@@ -56,7 +56,11 @@ public class SecurityConfig {
                         auth.requestMatchers("api/auth/me").authenticated()
                                 .requestMatchers(antMatcher(HttpMethod.DELETE,"/api/auth/**")).hasRole("ADMIN")
                                 .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/test/**").permitAll()
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html"
+                                ).permitAll()
                                 .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());
